@@ -13,9 +13,9 @@ class TweetsService {
     public users = UserModel;
 
     // CRUD
-    public async findAllTweets(query?: any): Promise<Tweet[]> {
+    public async findAllTweets(query?: any): Promise<Tweet> {
         const filter = query !== undefined ? query : {};
-        const tweets: Tweet[] = await this.tweets.find(filter);
+        const tweets: Tweet = await this.tweets.find(filter);
         return tweets;
     }
 
@@ -57,12 +57,10 @@ class TweetsService {
     }
 
     // Other APIs
-    public async getTweetFrequency(userId: string): Promise<any> {
+    public async getTweetFrequency(query?: any): Promise<any> {
         const tweets = await this.tweets.aggregate([
             {
-                $match: {
-                    user: mongoose.Types.ObjectId(userId)
-                },
+                $match: query
             },
             {
                 $group: {

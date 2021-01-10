@@ -21,26 +21,6 @@ class UserService {
         return findUser;
     }
 
-    public async createUser(userData: CreateUserDto): Promise<User> {
-        if (isEmptyObject(userData)) throw new HttpException(400, "You're not userData");
-
-        const findUser: User = await this.users.findOne({ email: userData.email });
-        if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
-
-        const hashedPassword = bcrypt.hash(userData.password, 10);
-
-        // Assign a role
-        if (String(userData.role) === 'User') {
-            userData.role = mongoose.Types.ObjectId(process.env.DEFAULT_USER_ROLE_ID);
-        } else if (String(userData.role) === 'Admin') {
-            userData.role = mongoose.Types.ObjectId(process.env.DEFAULT_ADMIN_ROLE_ID);
-        } else if (String(userData.role) === 'SuperAdmin') {
-            userData.role = mongoose.Types.ObjectId(process.env.DEFAULT_SUPERADMIN_ROLE_ID);
-        }
-        const createUserData: User = await this.users.create({ ...userData, password: hashedPassword });
-        return createUserData;
-    }
-
     public async updateUser(userId: string, userData: User): Promise<User> {
         if (isEmptyObject(userData)) throw new HttpException(400, "Empty data");
 

@@ -5,10 +5,15 @@ import {
     ValidateNested,
     IsArray,
 } from 'class-validator';
-import { prop, getModelForClass, index } from '@typegoose/typegoose';
+import { prop, getModelForClass, index, Severity, modelOptions } from '@typegoose/typegoose';
 import { Type } from 'class-transformer';
 import Permission from './permission.model';
 
+@modelOptions({
+    options: {
+        allowMixed: Severity.ALLOW,
+    },
+})
 @index({ name: 1 }, { unique: true })
 class Role {
     @prop({ required: true, unique: true })

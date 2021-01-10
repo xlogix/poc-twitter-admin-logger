@@ -7,7 +7,4 @@ export class CreateTweetDto {
 
     @IsString()
     public user: string;
-
-    @IsString()
-    public tags: string;
 }

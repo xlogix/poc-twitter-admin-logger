@@ -1,3 +1,4 @@
+import { mongoose } from '@typegoose/typegoose';
 import * as bcrypt from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { CreateUserDto } from '../dtos/user.dto';
@@ -17,6 +18,14 @@ class AuthService {
         if (findUser) throw new HttpException(409, `Your email ${userData.email} already exists`);
 
         const hashedPassword = await bcrypt.hash(userData.password, 10);
+        // Assign a role
+        if (String(userData.role) === 'User') {
+            userData.role = mongoose.Types.ObjectId(process.env.DEFAULT_USER_ROLE_ID);
+        } else if (String(userData.role) === 'Admin') {
+            userData.role = mongoose.Types.ObjectId(process.env.DEFAULT_ADMIN_ROLE_ID);
+        } else if (String(userData.role) === 'SuperAdmin') {
+            userData.role = mongoose.Types.ObjectId(process.env.DEFAULT_SUPERADMIN_ROLE_ID);
+        }
         const createUserData: User = await this.users.create({ ...userData, password: hashedPassword });
 
         return createUserData;

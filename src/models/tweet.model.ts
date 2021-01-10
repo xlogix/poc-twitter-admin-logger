@@ -1,5 +1,5 @@
 import { getModelForClass, prop, Ref } from '@typegoose/typegoose';
-import { IsDefined, IsEmail, Max, MaxLength } from 'class-validator';
+import { IsDefined, MaxLength } from 'class-validator';
 import { User } from './user.model';
 
 class Tweet {
@@ -8,7 +8,7 @@ class Tweet {
     public tweet!: string;
 
     @prop({ ref: User })
-    @IsDefined({ message: 'ROLE_MISSING' })
+    @IsDefined({ message: 'USER_MISSING' })
     public user!: Ref<User>;
 }
 

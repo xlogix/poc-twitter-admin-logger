@@ -1,5 +1,5 @@
 export interface Role {
     name: string,
-    // permissions: string[],
+    permissions: string[],
     status: number
 }

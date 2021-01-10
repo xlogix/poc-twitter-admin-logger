@@ -19,6 +19,7 @@ class EventRoute implements Route {
         this.router.post(`${this.path}`, validationMiddleware(CreateTweetDto), this.tweetController.createTweet);
         this.router.put(`${this.path}/:id`, validationMiddleware(CreateTweetDto, true), this.tweetController.updateTweet);
         this.router.delete(`${this.path}/:id`, this.tweetController.deleteTweet);
+        this.router.get(`${this.path}/insights/freq`, this.tweetController.getTweetFrequency);
     }
 }
 

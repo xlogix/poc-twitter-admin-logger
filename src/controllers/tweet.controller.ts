@@ -18,7 +18,7 @@ class TweetController {
         }
 
         try {
-            const findAllTweetsData: Tweet[] = await this.tweetService.findAllTweets(query);
+            const findAllTweetsData: Tweet = await this.tweetService.findAllTweets(query);
             res.status(200).json({ data: findAllTweetsData, message: 'All Tweets' });
         } catch (error) {
             next(error);
@@ -81,7 +81,7 @@ class TweetController {
         const query: any = {};
 
         if (userId) {
-            query.user = mongoose.Types.ObjectId(userId);
+            query.user = userId;
         }
 
         if (fromDate) {
@@ -91,6 +91,7 @@ class TweetController {
             };
         }
 
+        console.log('query' + JSON.stringify(query));
         try {
             const tweetData: Tweet = await this.tweetService.getTweetFrequency(query);
             res.status(200).json({ data: tweetData, message: 'user\'s activity' });
