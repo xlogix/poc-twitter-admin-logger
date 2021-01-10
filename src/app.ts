@@ -46,8 +46,8 @@ class App {
             this.app.use(cors({ origin: true, credentials: true }));
         }
 
-        // required for passport
-        // this.app.use({ secret: 'randomized string', resave: true, saveUninitialized: true });
+        // // required for passport
+        // this.app.use({ secret: 'randomizedstring', resave: true, saveUninitialized: true });
         // this.app.use(passport.initialize());
         // this.app.use(passport.session());
         // this.app.use(flash());

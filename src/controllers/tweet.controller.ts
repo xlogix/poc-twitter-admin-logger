@@ -75,7 +75,8 @@ class TweetController {
         res: Response,
         next: NextFunction
     ) => {
-        const userId: any = req.query.user;
+        const userId: any = req.user;
+        console.log('userId' + JSON.stringify(userId));
         const fromDate: any = req.query.fromDate;
         const toDate: any = req.query.toDate;
         const query: any = {};

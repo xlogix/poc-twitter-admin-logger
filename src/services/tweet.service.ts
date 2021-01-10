@@ -33,9 +33,12 @@ class TweetsService {
 
         const createTweetData: Tweet = await this.tweets.create({ ...tweetData });
 
-        const user = await this.users.findOne({ _id: tweetData.user });
-        console.log(user);
-        await this.logs.create({ user });
+        const user = await this.users.findOne({ _id: tweetData.user })
+            .populate('role', 'name')
+            .lean()
+            .exec()
+
+        await this.logs.create({ actorType: user.role.name, action: `${user.firstName} tweeted ${tweetData.tweet}` });
 
         return createTweetData;
     }
@@ -44,7 +47,14 @@ class TweetsService {
         if (isEmptyObject(tweetData)) throw new HttpException(400, "Send more data...");
 
         const updateTweetData: Tweet = await this.tweets.findByIdAndUpdate(tweetId, { ...tweetData });
-        if (!updateTweetData) throw new HttpException(409, "You're not a tweet");
+        if (!updateTweetData) throw new HttpException(409, "Update failed");
+
+        const user = await this.users.findOne({ _id: tweetData.user })
+            .populate('role', 'name')
+            .lean()
+            .exec()
+
+        await this.logs.create({ actorType: user.role.name, action: `${user.firstName} edited ${tweetId} with ${tweetData.tweet}` });
 
         return updateTweetData;
     }
@@ -52,6 +62,8 @@ class TweetsService {
     public async deleteTweetData(tweetId: string): Promise<Tweet> {
         const updateTweetData: Tweet = await this.tweets.findByIdAndDelete(tweetId);
         if (!updateTweetData) throw new HttpException(409, "You're not a tweet");
+
+        // await this.logs.create({ actorType: user.role.name, action: `${user.firstName} deleted ${tweetId}` });
 
         return updateTweetData;
     }

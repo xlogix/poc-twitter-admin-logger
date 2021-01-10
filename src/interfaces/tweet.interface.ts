@@ -1,7 +1,7 @@
+import { mongoose } from "@typegoose/typegoose";
+
 export interface Tweet {
     _id: string,
     tweet: string,
-    user: string,
-    createdAt: Date,
-    modifiedAt: Date
+    user: mongoose.Types.ObjectId
 }
