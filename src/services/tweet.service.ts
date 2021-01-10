@@ -4,8 +4,8 @@ import { isEmptyObject } from '../utils/util';
 import { CreateTweetDto } from 'dtos/tweet.dto';
 import { Tweet } from '../interfaces/tweet.interface';
 import LogModel from '../models/log.model';
-import TweetModel from '../models/tweet.model';
-import { UserModel } from 'models/user.model';
+import { UserModel } from '../models/user.model';
+import { TweetModel } from '../models/tweet.model';
 
 class TweetsService {
     public tweets = TweetModel;

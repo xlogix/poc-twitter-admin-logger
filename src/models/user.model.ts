@@ -4,26 +4,26 @@ import { Role } from './role.model';
 
 class User {
     @prop({ required: true, unique: true, lowercase: true })
-    @IsDefined({ groups: ['auth', 'create'], message: 'EMPTY_EMAIL' })
+    @IsDefined({ message: 'EMPTY_EMAIL' })
     @IsEmail({}, { always: true, message: 'INVALID_EMAIL' })
     public email!: string;
 
     @prop({ default: null })
-    @IsDefined({ groups: ['auth'], message: 'EMPTY_PASSWORD' })
+    @IsDefined({ message: 'EMPTY_PASSWORD' })
     public password!: string;
 
     @prop({ ref: Role })
-    @IsDefined({ groups: ['create'], message: 'ROLE_MISSING' })
+    @IsDefined({ message: 'ROLE_MISSING' })
     public role!: Ref<Role>;
 
 }
 
 const UserModel = getModelForClass(User, {
     schemaOptions: {
-      id: false,
-      versionKey: false,
-      timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },
+        id: false,
+        versionKey: false,
+        timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },
     },
-  });
+});
 
 export { User, UserModel };

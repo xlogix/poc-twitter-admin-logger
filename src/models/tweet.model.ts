@@ -1,28 +1,23 @@
-import { Max } from 'class-validator';
-import * as mongoose from 'mongoose';
-import { Tweet } from '../interfaces/tweet.interface';
+import { getModelForClass, prop, Ref } from '@typegoose/typegoose';
+import { IsDefined, IsEmail, Max, MaxLength } from 'class-validator';
+import { User } from './user.model';
 
-const tweetSchema = new mongoose.Schema({
-    tweet: {
-        type: String,
-        require: true
+class Tweet {
+    @prop({ default: null })
+    @MaxLength(160, { always: true, message: 'MAX_TWEET' })
+    public tweet!: string;
+
+    @prop({ ref: User })
+    @IsDefined({ message: 'ROLE_MISSING' })
+    public user!: Ref<User>;
+}
+
+const TweetModel = getModelForClass(Tweet, {
+    schemaOptions: {
+        id: false,
+        versionKey: false,
+        timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },
     },
-    user: {
-        ref: 'User',
-        default: process.env.DEFAULT_USER_ROLE_ID
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now()
-    },
-    modifiedAt: {
-        type: Date,
-        default: Date.now()
-    }
-}, {
-    versionKey: false
 });
 
-const TweetModel = mongoose.model<Tweet & mongoose.Document>('Tweet', tweetSchema);
-
-export default TweetModel;
+export { Tweet, TweetModel };

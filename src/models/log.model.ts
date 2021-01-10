@@ -2,7 +2,7 @@ import { Log } from 'interfaces/log.interface';
 import * as mongoose from 'mongoose';
 
 const logSchema = new mongoose.Schema({
-    actor: {
+    actorType: {
         type: String,
         require: true
     },
@@ -20,6 +20,6 @@ const logSchema = new mongoose.Schema({
     }
 });
 
-const LogModel = mongoose.model<Log & mongoose.Document>('User', logSchema);
+const LogModel = mongoose.model<Log & mongoose.Document>('Log', logSchema);
 
 export default LogModel;
