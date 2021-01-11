@@ -1,6 +1,6 @@
 import { mongoose } from '@typegoose/typegoose';
 import * as bcrypt from 'bcrypt';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 import { CreateUserDto } from '../dtos/user.dto';
 import HttpException from '../exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '../interfaces/auth.interface';
@@ -43,6 +43,10 @@ class AuthService {
         const tokenData = this.createToken(findUser);
         const cookie = this.createCookie(tokenData);
 
+        // Delete irrelevant stuff
+        delete findUser.password;
+        delete findUser.role;
+
         return { cookie, findUser };
     }
 
@@ -58,13 +62,16 @@ class AuthService {
     public createToken(user: User): TokenData {
         const dataStoredInToken: DataStoredInToken = { _id: user._id };
         const secret: string = process.env.JWT_SECRET;
-        const expiresIn: number = 60 * 60;
+        const expiresIn: number = 60 * 60 * 24;
 
         return { expiresIn, token: sign(dataStoredInToken, secret, { expiresIn }) };
     }
 
     public createCookie(tokenData: TokenData): string {
-        return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
+        const decoded = verify(tokenData.token, process.env.JWT_SECRET);
+        // console.log(JSON.stringify(decoded));
+        return `Authorization=${tokenData.token}; HttpOnly; Path=/; Max-Age=${tokenData.expiresIn};`;
+
     }
 }
 

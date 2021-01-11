@@ -6,12 +6,14 @@ import { UserModel } from '../models/user.model';
 
 async function authMiddleware(req: RequestWithUser, res: Response, next: NextFunction) {
     const cookies = req.cookies;
+    // console.log('cookie1: ' + JSON.stringify(cookies));
 
     if (cookies && cookies.Authorization) {
         const secret = process.env.JWT_SECRET;
 
         try {
             const verificationResponse = verify(cookies.Authorization, secret) as DataStoredInToken;
+            res.locals.jwtPayload = verificationResponse;
             const userId = verificationResponse._id;
             const findUser = await UserModel.findById(userId);
 

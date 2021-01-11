@@ -1,20 +1,20 @@
 import moment from 'moment';
 import mongoose from 'mongoose';
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, query, Request, Response } from 'express';
 import { CreateTweetDto } from '../dtos/tweet.dto';
 import tweetService from '../services/tweet.service';
 import { Tweet } from '../interfaces/tweet.interface';
-import { User } from '../interfaces/user.interface';
 
 class TweetController {
     public tweetService = new tweetService();
 
     public getTweets = async (req: Request, res: Response, next: NextFunction) => {
-        const userId: string = req.params.user;
+        const user: any = req.user;
+        const userId: string = user._id;
         const query: any = {};
 
         if (userId) {
-            query.user = mongoose.Types.ObjectId(userId)
+            query.user = userId;
         }
 
         try {
@@ -26,10 +26,22 @@ class TweetController {
     }
 
     public getTweetById = async (req: Request, res: Response, next: NextFunction) => {
-        const userId: string = req.params.id;
+        const tweetId: string = req.params.id;
+
+        const user: any = req.user;
+        const userId: string = user._id;
+        const query: any = {};
+
+        if (userId) {
+            query.user = userId;
+        }
+
+        if (tweetId) {
+            query._id = tweetId;
+        }
 
         try {
-            const findOneTweetData: Tweet = await this.tweetService.findTweetById(userId);
+            const findOneTweetData: Tweet = await this.tweetService.findTweetById(tweetId);
             res.status(200).json({ data: findOneTweetData, message: 'findOne' });
         } catch (error) {
             next(error);
@@ -61,9 +73,20 @@ class TweetController {
 
     public deleteTweet = async (req: Request, res: Response, next: NextFunction) => {
         const tweetId: string = req.params.id;
+        const user: any = req.user;
+        const userId: string = user._id;
+        const query: any = {};
+
+        if (userId) {
+            query.user = userId;
+        }
+
+        if (tweetId) {
+            query._id = tweetId;
+        }
 
         try {
-            const deleteTweetData: Tweet = await this.tweetService.deleteTweetData(tweetId);
+            const deleteTweetData: Tweet = await this.tweetService.deleteTweetData(query);
             res.status(200).json({ data: deleteTweetData, message: 'deleted' });
         } catch (error) {
             next(error);
@@ -76,7 +99,6 @@ class TweetController {
         next: NextFunction
     ) => {
         const userId: any = req.user;
-        console.log('userId' + JSON.stringify(userId));
         const fromDate: any = req.query.fromDate;
         const toDate: any = req.query.toDate;
         const query: any = {};

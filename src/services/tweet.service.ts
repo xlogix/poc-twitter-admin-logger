@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import HttpException from '../exceptions/HttpException';
 import { isEmptyObject } from '../utils/util';
 import { CreateTweetDto } from 'dtos/tweet.dto';
@@ -19,8 +18,8 @@ class TweetsService {
         return tweets;
     }
 
-    public async findTweetById(tweetId: string): Promise<Tweet> {
-        const findTweet: Tweet = await this.tweets.findById(tweetId);
+    public async findTweetById(query?: any): Promise<Tweet> {
+        const findTweet: Tweet = await this.tweets.findById(query);
         if (!findTweet) throw new HttpException(409, "This tweet doesn't exist");
 
         return findTweet;
@@ -33,6 +32,7 @@ class TweetsService {
 
         const createTweetData: Tweet = await this.tweets.create({ ...tweetData });
 
+        // Log it
         const user = await this.users.findOne({ _id: tweetData.user })
             .populate('role', 'name')
             .lean()
@@ -49,6 +49,7 @@ class TweetsService {
         const updateTweetData: Tweet = await this.tweets.findByIdAndUpdate(tweetId, { ...tweetData });
         if (!updateTweetData) throw new HttpException(409, "Update failed");
 
+        // Log it
         const user = await this.users.findOne({ _id: tweetData.user })
             .populate('role', 'name')
             .lean()
@@ -59,11 +60,21 @@ class TweetsService {
         return updateTweetData;
     }
 
-    public async deleteTweetData(tweetId: string): Promise<Tweet> {
-        const updateTweetData: Tweet = await this.tweets.findByIdAndDelete(tweetId);
-        if (!updateTweetData) throw new HttpException(409, "You're not a tweet");
+    public async deleteTweetData(query? :any): Promise<Tweet> {
+        const updateTweetData = await this.tweets.remove(query);
+        if (!updateTweetData) throw new HttpException(409, "Unable to delete tweet");
 
-        // await this.logs.create({ actorType: user.role.name, action: `${user.firstName} deleted ${tweetId}` });
+        if (updateTweetData.n === 0) {
+            throw new HttpException(409, "You're not authorized to delete the tweet");
+        }
+
+        // Log it
+        const user = await this.users.findOne({ _id: query.user })
+            .populate('role', 'name')
+            .lean()
+            .exec()
+
+        await this.logs.create({ actorType: user.role.name, action: `${user.firstName} deleted ${query._id}` });
 
         return updateTweetData;
     }

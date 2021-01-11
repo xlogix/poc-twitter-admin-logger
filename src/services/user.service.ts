@@ -1,6 +1,4 @@
-import mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from '../dtos/user.dto';
 import HttpException from '../exceptions/HttpException';
 import { User } from '../interfaces/user.interface';
 import { UserModel } from '../models/user.model';

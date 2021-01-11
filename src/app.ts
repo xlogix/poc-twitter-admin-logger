@@ -4,15 +4,15 @@ import * as express from 'express';
 import * as hpp from 'hpp';
 import * as mongoose from 'mongoose';
 import * as logger from 'morgan';
-import passport from 'passport';
-import flash from 'connect-flash';
-import session from 'express-session';
+import { Strategy as JWTStrategy } from 'passport-jwt';
 import Routes from './interfaces/route.interface';
 import errorMiddleware from './middlewares/error.middleware';
+import { UserModel } from './models/user.model';
 
 class App {
     public app: express.Application;
     public port: (string | number);
+    public users = UserModel;
     public env: boolean;
 
     constructor(routes: Routes[]) {
@@ -36,7 +36,7 @@ class App {
         return this.app;
     }
 
-    private initializeMiddlewares() {
+    private async initializeMiddlewares() {
         if (this.env) {
             this.app.use(hpp());
             this.app.use(logger('combined'));
@@ -46,15 +46,46 @@ class App {
             this.app.use(cors({ origin: true, credentials: true }));
         }
 
-        // // required for passport
-        // this.app.use({ secret: 'randomizedstring', resave: true, saveUninitialized: true });
-        // this.app.use(passport.initialize());
-        // this.app.use(passport.session());
-        // this.app.use(flash());
+        // required for passport
+        // passport.use(await this.strategy());
 
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(cookieParser());
+    }
+
+    protected async strategy(): Promise<JWTStrategy> {
+        return new JWTStrategy(
+            {
+                jwtFromRequest: (req): any =>
+                    String(req.headers.authorization).split(' ')[1],
+                secretOrKey: process.env.JWT_SECRET,
+            },
+            (jwtPayload, done): any => {
+                return this.users
+                    .findOne(
+                        { email: jwtPayload.email },
+                        'email role',
+                        'role name permissions',
+                    )
+                    .then((user: any): any => {
+                        if (!user) {
+                            throw new Error('AUTH_TOKEN_INVALID');
+                        }
+                        const payload = jwtPayload;
+                        payload.user = user;
+                        if (user.role) {
+                            const { role } = user;
+                            payload.access = role.permissions;
+                        }
+                        return done(null, payload);
+
+                    })
+                    .catch((error: any): any => {
+                        return done(error);
+                    });
+            },
+        );
     }
 
     private initializeRoutes(routes: Routes[]) {
